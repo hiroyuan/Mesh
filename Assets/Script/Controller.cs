@@ -7,6 +7,16 @@ public class Controller : MonoBehaviour {
     public Button btn;
     public List<GameObject> list = new List<GameObject>();
     public Bounds bounds;
+    public MeshHolder meshHolder;
+    public UnityEngine.Mesh mesh;
+
+    public List<Vector3> totalVertices;
+    public List<Vector3> totalNormals;
+    public List<Color32> totalColors;
+    public List<int> totalTriangleIndices;
+    public List<Vector2> totalUVs;
+    public List<Vector2> totalUV2s;
+    public Transform[] transforms;
 
     // Use this for initialization
     void Start ()
@@ -19,15 +29,63 @@ public class Controller : MonoBehaviour {
 	void TaskOnClick ()
     {
         Debug.Log("You have clicked the button!");
-        
-        mergeIntoParent();
-        bounds = drawBoundingBox(list);
-        
+
+        //mergeIntoParent();
+        //bounds = drawBoundingBox(list);
+        mergeMeshElements();
+        drawNewMesh();
     }
 
+    /*
     void OnDrawGizmos()
     {
         Gizmos.DrawCube(bounds.center, bounds.size);
+    }
+    */
+
+    private void mergeMeshElements()
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            if (i == 0)
+                list.Add(GameObject.Find("Cube"));
+            else
+                list.Add(GameObject.Find("Cube (" + i + ")"));
+        }
+
+        transforms = new Transform[list.Count];
+
+        int index = 0;
+        foreach (GameObject g in list)
+        {
+            meshHolder = new MeshHolder(g);
+            totalVertices.AddRange(meshHolder.GetVertices());
+            totalNormals.AddRange(meshHolder.GetNormals());
+            totalColors.AddRange(meshHolder.GetColors());
+            totalTriangleIndices.AddRange(meshHolder.GetTriangleIndices());
+            totalUVs.AddRange(meshHolder.GetUVs());
+            totalUV2s.AddRange(meshHolder.GetUV2s());
+            transforms[index] = meshHolder.GetTransform();
+            index++;
+        }
+    }
+
+    private void drawNewMesh()
+    {
+        GameObject newGameObject = new GameObject();
+        MeshFilter mf = newGameObject.AddComponent<MeshFilter>();
+        MeshRenderer mr = newGameObject.AddComponent<MeshRenderer>();
+
+        UnityEngine.Mesh newMesh = new UnityEngine.Mesh();
+        newMesh.vertices = totalVertices.ToArray();
+        newMesh.normals = totalNormals.ToArray();
+        newMesh.colors32 = totalColors.ToArray();
+        newMesh.triangles = totalTriangleIndices.ToArray();
+        newMesh.uv = totalUVs.ToArray();
+
+        mf.mesh = newMesh;
+        mr.material = new Material(Shader.Find("Transparent/Diffuse"));
+        mr.material.color = Color.green;
     }
 
     private void mergeIntoParent()

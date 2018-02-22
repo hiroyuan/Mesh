@@ -95,6 +95,7 @@
   <ItemGroup>
     <Compile Include="Assets\Script\Controller.cs" />
     <Compile Include="Assets\Script\Mesh.cs" />
+    <Compile Include="Assets\Script\MeshHolder.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
