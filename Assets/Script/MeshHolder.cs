@@ -10,7 +10,7 @@ public class MeshHolder {
     private Vector2[] uvs;
     private Vector2[] uv2s;
 
-    private Transform transform;
+    private Transform trans;
 
     public MeshHolder(GameObject g)
     {
@@ -20,19 +20,17 @@ public class MeshHolder {
         triangleIndices = g.GetComponent<MeshFilter>().mesh.triangles;
         uvs = g.GetComponent<MeshFilter>().mesh.uv;
         uv2s = g.GetComponent<MeshFilter>().mesh.uv2;
-        transform = g.transform;
-        transform.position.Set(g.transform.position.x, g.transform.position.y, g.transform.position.z);
-        transform.rotation.Set(g.transform.rotation.x, g.transform.rotation.y, g.transform.rotation.z, g.transform.rotation.w);
+        trans = g.transform;
     }
 
     public Vector3[] GetVertices()
     {
-        return vertices;
+        return transformToWorldPoint(vertices);
     }
 
     public Vector3[] GetNormals()
     {
-        return normals;
+        return transformToWorldPoint(normals);
     }
 
     public Color32[] GetColors()
@@ -55,8 +53,14 @@ public class MeshHolder {
         return uv2s;
     }
 
-    public Transform GetTransform()
+    private Vector3[] transformToWorldPoint(Vector3[] array)
     {
-        return transform;
+        Vector3[] worldPosArray = new Vector3[array.Length];
+        for (int index = 0; index < array.Length; index++)
+        {
+            worldPosArray[index] = trans.TransformPoint(array[index]);
+        }
+
+        return worldPosArray;
     }
 }

@@ -16,7 +16,6 @@ public class Controller : MonoBehaviour {
     public List<int> totalTriangleIndices;
     public List<Vector2> totalUVs;
     public List<Vector2> totalUV2s;
-    public Transform[] transforms;
 
     // Use this for initialization
     void Start ()
@@ -53,9 +52,7 @@ public class Controller : MonoBehaviour {
                 list.Add(GameObject.Find("Cube (" + i + ")"));
         }
 
-        transforms = new Transform[list.Count];
 
-        int index = 0;
         foreach (GameObject g in list)
         {
             meshHolder = new MeshHolder(g);
@@ -65,8 +62,6 @@ public class Controller : MonoBehaviour {
             totalTriangleIndices.AddRange(meshHolder.GetTriangleIndices());
             totalUVs.AddRange(meshHolder.GetUVs());
             totalUV2s.AddRange(meshHolder.GetUV2s());
-            transforms[index] = meshHolder.GetTransform();
-            index++;
         }
     }
 
