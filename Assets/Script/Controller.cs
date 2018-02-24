@@ -52,14 +52,24 @@ public class Controller : MonoBehaviour {
                 list.Add(GameObject.Find("Cube (" + i + ")"));
         }
 
-
+        int arrayCount = 0;
         foreach (GameObject g in list)
         {
             meshHolder = new MeshHolder(g);
             totalVertices.AddRange(meshHolder.GetVertices());
             totalNormals.AddRange(meshHolder.GetNormals());
             totalColors.AddRange(meshHolder.GetColors());
-            totalTriangleIndices.AddRange(meshHolder.GetTriangleIndices());
+            //totalTriangleIndices.AddRange(meshHolder.GetTriangleIndices());
+
+            int[] tempIndex = meshHolder.GetTriangleIndices();
+            int[] tempIndex2 = new int[tempIndex.Length];
+            for (int i = 0; i < tempIndex.Length; i++)
+            {
+                tempIndex2[i] = tempIndex[i] + arrayCount;
+            }
+            totalTriangleIndices.AddRange(tempIndex2);
+            arrayCount = arrayCount + meshHolder.GetVertices().Length;
+
             totalUVs.AddRange(meshHolder.GetUVs());
             totalUV2s.AddRange(meshHolder.GetUV2s());
         }
