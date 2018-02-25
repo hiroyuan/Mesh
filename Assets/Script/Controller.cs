@@ -6,10 +6,11 @@ using UnityEngine.UI;
 public class Controller : MonoBehaviour {
     public Button btn;
     public List<GameObject> list = new List<GameObject>();
+
     public Bounds bounds;
+
     public MeshHolder meshHolder;
     public UnityEngine.Mesh mesh;
-
     public List<Vector3> totalVertices;
     public List<Vector3> totalNormals;
     public List<Color32> totalColors;
@@ -20,8 +21,9 @@ public class Controller : MonoBehaviour {
     // Use this for initialization
     void Start ()
     {
+        mesh = new UnityEngine.Mesh();
         Button button = btn.GetComponent<Button>();
-        button.onClick.AddListener(TaskOnClick);
+        btn.onClick.AddListener(TaskOnClick);
     }
 	
 	// Update is called once per frame
@@ -29,20 +31,22 @@ public class Controller : MonoBehaviour {
     {
         Debug.Log("You have clicked the button!");
 
+        addToList();
         //mergeIntoParent();
-        //bounds = drawBoundingBox(list);
+        bounds = drawBoundingBox(list);
         mergeMeshElements();
         drawNewMesh();
+        destroyObjInList();
+
+        splitMesh();
     }
 
-    /*
     void OnDrawGizmos()
     {
-        Gizmos.DrawCube(bounds.center, bounds.size);
+        Gizmos.DrawWireCube(bounds.center, bounds.size);
     }
-    */
 
-    private void mergeMeshElements()
+    private void addToList()
     {
         for (int i = 0; i < 10; i++)
         {
@@ -51,7 +55,10 @@ public class Controller : MonoBehaviour {
             else
                 list.Add(GameObject.Find("Cube (" + i + ")"));
         }
+    }
 
+    private void mergeMeshElements()
+    {
         int arrayCount = 0;
         foreach (GameObject g in list)
         {
@@ -79,30 +86,21 @@ public class Controller : MonoBehaviour {
     {
         GameObject newGameObject = new GameObject();
         MeshFilter mf = newGameObject.AddComponent<MeshFilter>();
+        mf.name = "NewMesh";
         MeshRenderer mr = newGameObject.AddComponent<MeshRenderer>();
 
-        UnityEngine.Mesh newMesh = new UnityEngine.Mesh();
-        newMesh.vertices = totalVertices.ToArray();
-        newMesh.normals = totalNormals.ToArray();
-        newMesh.colors32 = totalColors.ToArray();
-        newMesh.triangles = totalTriangleIndices.ToArray();
-        newMesh.uv = totalUVs.ToArray();
+        mesh.vertices = totalVertices.ToArray();
+        mesh.normals = totalNormals.ToArray();
+        mesh.colors32 = totalColors.ToArray();
+        mesh.triangles = totalTriangleIndices.ToArray();
+        mesh.uv = totalUVs.ToArray();
 
-        mf.mesh = newMesh;
+        mf.mesh = mesh;
         mr.material = new Material(Shader.Find("Transparent/Diffuse"));
-        mr.material.color = Color.green;
     }
 
     private void mergeIntoParent()
     {
-        for (int i = 0; i < 10; i++)
-        {
-            if (i == 0)
-                list.Add(GameObject.Find("Cube"));
-            else
-                list.Add(GameObject.Find("Cube (" + i + ")"));
-        }
-
         GameObject gameObject = new GameObject();
         //gameObject.AddComponent<MeshFilter>();
         //gameObject.AddComponent<MeshRenderer>();
@@ -198,5 +196,44 @@ public class Controller : MonoBehaviour {
         points[5] = tr.TransformPoint(new Vector3(v3Center.x + v3ext.x, v3Center.y + v3ext.y, v3Center.z + v3ext.z));  // Back top right corner
         points[6] = tr.TransformPoint(new Vector3(v3Center.x - v3ext.x, v3Center.y - v3ext.y, v3Center.z + v3ext.z));  // Back bottom left corner
         points[7] = tr.TransformPoint(new Vector3(v3Center.x + v3ext.x, v3Center.y - v3ext.y, v3Center.z + v3ext.z));  // Back bottom right corner
+    }
+
+    private void destroyObjInList()
+    {
+        foreach (GameObject g in list)
+        {
+            Destroy(g);
+        }
+    }
+
+    private void splitMesh()
+    {
+        List<Vector3> newVertices1 = new List<Vector3>();
+        List<Vector3> newNormals1 = new List<Vector3>();
+        List<int> newTriangles1 = new List<int>();
+
+        for (int i = 0; i < mesh.vertices.Length; i++)
+        {
+            if( (mesh.vertices[i].x > bounds.center.x) && (mesh.vertices[i].y > bounds.center.y) )
+            {
+                newVertices1.Add(mesh.vertices[i]);
+                newNormals1.Add(mesh.normals[i]);
+                newTriangles1.Add(mesh.triangles[i]);
+            }
+        }
+
+        GameObject newGameObject = new GameObject();
+        newGameObject.name = "Splitted Game Object";
+        MeshFilter mf = newGameObject.AddComponent<MeshFilter>();
+        MeshRenderer mr = newGameObject.AddComponent<MeshRenderer>();
+
+        UnityEngine.Mesh newMesh = new UnityEngine.Mesh();
+        newMesh.vertices = newVertices1.ToArray();
+        newMesh.normals = newNormals1.ToArray();
+        newMesh.triangles = newTriangles1.ToArray();
+
+        mf.mesh = newMesh;
+        mr.material = new Material(Shader.Find("Transparent/Diffuse"));
+        mr.material.color = Color.red;
     }
 }
