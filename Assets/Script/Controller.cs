@@ -12,6 +12,15 @@ public class Controller : MonoBehaviour {
     public MeshHolder meshHolder;
     public UnityEngine.Mesh mesh;
 
+    public Bounds subBounds1;
+    public Bounds subBounds2;
+    public Bounds subBounds3;
+    public Bounds subBounds4;
+    public Bounds subBounds5;
+    public Bounds subBounds6;
+    public Bounds subBounds7;
+    public Bounds subBounds8;
+
     // Use this for initialization
     void Start ()
     {
@@ -31,14 +40,22 @@ public class Controller : MonoBehaviour {
         bounds = DrawBoundingBox(list);
         CombineMeshes();
         DrawNewMesh();
-        DestroyObjInList();
-
-        SplitMesh();
+        //DestroyObjInList();
+        SplitBounds();
+        //SplitMesh();
     }
 
     void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(bounds.center, bounds.size);
+        Gizmos.DrawCube(subBounds1.center, subBounds1.size);
+        //Gizmos.DrawCube(subBounds2.center, subBounds2.size);
+        //Gizmos.DrawCube(subBounds3.center, subBounds3.size);
+        //Gizmos.DrawCube(subBounds4.center, subBounds4.size);
+        //Gizmos.DrawCube(subBounds5.center, subBounds5.size);
+        //Gizmos.DrawCube(subBounds6.center, subBounds6.size);
+        //Gizmos.DrawCube(subBounds7.center, subBounds7.size);
+        //Gizmos.DrawCube(subBounds8.center, subBounds8.size);
     }
 
     public void addToList()
@@ -154,35 +171,59 @@ public class Controller : MonoBehaviour {
         }
     }
 
+    /// <summary>
+    /// This function splits the bounds into 8 sub parts.
+    /// </summary>
+    public void SplitBounds()
+    {
+        float sizeX = (bounds.max.x - bounds.min.x) / 2;
+        float sizeY = (bounds.max.y - bounds.min.y) / 2;
+        float sizeZ = (bounds.max.z - bounds.min.z) / 2;
+
+        Vector3 subSize = new Vector3(sizeX, sizeY, sizeZ);
+
+        // subBounds1
+        Vector3 subCenter1 = new Vector3(bounds.min.x + sizeX / 2, bounds.min.y + sizeY / 2, bounds.min.z + sizeZ / 2);
+        subBounds1 = new Bounds(subCenter1, subSize);
+
+        // subBounds2
+        Vector3 subCenter2 = new Vector3(bounds.max.x - sizeX / 2, bounds.min.y + sizeY / 2, bounds.min.z + sizeZ / 2);
+        subBounds2 = new Bounds(subCenter2, subSize);
+
+        // subBounds3
+        Vector3 subCenter3 = new Vector3(bounds.min.x + sizeX / 2, bounds.max.y - sizeY / 2, bounds.min.z + sizeZ / 2);
+        subBounds3 = new Bounds(subCenter3, subSize);
+
+        // subBounds4
+        Vector3 subCenter4 = new Vector3(bounds.max.x - sizeX / 2, bounds.max.y - sizeY / 2, bounds.min.z + sizeZ / 2);
+        subBounds4 = new Bounds(subCenter4, subSize);
+
+        // subBounds5
+        Vector3 subCenter5 = new Vector3(bounds.min.x + sizeX / 2, bounds.min.y + sizeY / 2, bounds.max.z - sizeZ / 2);
+        subBounds5 = new Bounds(subCenter5, subSize);
+
+        // subBounds6
+        Vector3 subCenter6 = new Vector3(bounds.max.x - sizeX / 2, bounds.min.y + sizeY / 2, bounds.max.z - sizeZ / 2);
+        subBounds6 = new Bounds(subCenter6, subSize);
+
+        // subBounds7
+        Vector3 subCenter7 = new Vector3(bounds.min.x + sizeX / 2, bounds.max.y - sizeY / 2, bounds.max.z - sizeZ / 2);
+        subBounds7 = new Bounds(subCenter7, subSize);
+
+        // subBounds8
+        Vector3 subCenter8 = new Vector3(bounds.max.x - sizeX / 2, bounds.max.y - sizeY / 2, bounds.max.z - sizeZ / 2);
+        subBounds8 = new Bounds(subCenter8, subSize);
+    }
+
     public void SplitMesh()
     {
-        List<Vector3> newVertices1 = new List<Vector3>();
-        List<Vector3> newNormals1 = new List<Vector3>();
-        List<int> newTriangles1 = new List<int>();
-
         for (int i = 0; i < mesh.vertices.Length; i++)
         {
-            if( (mesh.vertices[i].x > bounds.center.x) && (mesh.vertices[i].y > bounds.center.y) )
+            if( subBounds1.Contains(mesh.vertices[i]) )
             {
-                newVertices1.Add(mesh.vertices[i]);
-                newNormals1.Add(mesh.normals[i]);
-                newTriangles1.Add(mesh.triangles[i]);
+
             }
         }
-
-        GameObject newGameObject = new GameObject();
-        newGameObject.name = "Splitted Game Object";
-        MeshFilter mf = newGameObject.AddComponent<MeshFilter>();
-        MeshRenderer mr = newGameObject.AddComponent<MeshRenderer>();
-
-        UnityEngine.Mesh newMesh = new UnityEngine.Mesh();
-        newMesh.vertices = newVertices1.ToArray();
-        newMesh.normals = newNormals1.ToArray();
-        newMesh.triangles = newTriangles1.ToArray();
-
-        mf.mesh = newMesh;
-        mr.material = new Material(Shader.Find("Transparent/Diffuse"));
-        mr.material.color = Color.red;
     }
 
     /// <summary>
