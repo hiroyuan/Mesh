@@ -12,20 +12,27 @@ public class Controller : MonoBehaviour {
     public MeshHolder meshHolder;
     public UnityEngine.Mesh mesh;
 
-    public Bounds subBounds1;
-    public Bounds subBounds2;
-    public Bounds subBounds3;
-    public Bounds subBounds4;
-    public Bounds subBounds5;
-    public Bounds subBounds6;
-    public Bounds subBounds7;
-    public Bounds subBounds8;
+    //public Bounds subBounds1;
+    //public Bounds subBounds2;
+    //public Bounds subBounds3;
+    //public Bounds subBounds4;
+    //public Bounds subBounds5;
+    //public Bounds subBounds6;
+    //public Bounds subBounds7;
+    //public Bounds subBounds8;
+
+    public Bounds[] subBounds;
+
+    public int xDirCount = 2;
+    public int yDirCount = 2;
+    public int zDirCount = 2;
 
     // Use this for initialization
     void Start ()
     {
         meshHolder = new MeshHolder();
         mesh = new UnityEngine.Mesh();
+        subBounds = new Bounds[xDirCount * yDirCount * zDirCount];
         Button button = btn.GetComponent<Button>();
         btn.onClick.AddListener(TaskOnClick);
     }
@@ -48,7 +55,7 @@ public class Controller : MonoBehaviour {
     void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(bounds.center, bounds.size);
-        Gizmos.DrawCube(subBounds1.center, subBounds1.size);
+        //Gizmos.DrawCube(subBounds1.center, subBounds1.size);
         //Gizmos.DrawCube(subBounds2.center, subBounds2.size);
         //Gizmos.DrawCube(subBounds3.center, subBounds3.size);
         //Gizmos.DrawCube(subBounds4.center, subBounds4.size);
@@ -56,6 +63,11 @@ public class Controller : MonoBehaviour {
         //Gizmos.DrawCube(subBounds6.center, subBounds6.size);
         //Gizmos.DrawCube(subBounds7.center, subBounds7.size);
         //Gizmos.DrawCube(subBounds8.center, subBounds8.size);
+        for (int i = 0; i < subBounds.Length; i++)
+        {
+            Gizmos.DrawCube(subBounds[i].center, subBounds[i].size);
+        }
+        //Gizmos.DrawCube(subBounds[1].center, subBounds[1].size);
     }
 
     public void addToList()
@@ -167,7 +179,7 @@ public class Controller : MonoBehaviour {
     {
         foreach (GameObject g in list)
         {
-            Destroy(g);
+            Destroy(g); 
         }
     }
 
@@ -176,54 +188,77 @@ public class Controller : MonoBehaviour {
     /// </summary>
     public void SplitBounds()
     {
-        float sizeX = (bounds.max.x - bounds.min.x) / 2;
-        float sizeY = (bounds.max.y - bounds.min.y) / 2;
-        float sizeZ = (bounds.max.z - bounds.min.z) / 2;
+        //float sizeX = (bounds.max.x - bounds.min.x) / 2;
+        //float sizeY = (bounds.max.y - bounds.min.y) / 2;
+        //float sizeZ = (bounds.max.z - bounds.min.z) / 2;
 
+        //Vector3 subSize = new Vector3(sizeX, sizeY, sizeZ);
+
+        //// subBounds1
+        //Vector3 subCenter1 = new Vector3(bounds.min.x + sizeX / 2, bounds.min.y + sizeY / 2, bounds.min.z + sizeZ / 2);
+        //subBounds1 = new Bounds(subCenter1, subSize);
+
+        //// subBounds2
+        //Vector3 subCenter2 = new Vector3(bounds.max.x - sizeX / 2, bounds.min.y + sizeY / 2, bounds.min.z + sizeZ / 2);
+        //subBounds2 = new Bounds(subCenter2, subSize);
+
+        //// subBounds3
+        //Vector3 subCenter3 = new Vector3(bounds.min.x + sizeX / 2, bounds.max.y - sizeY / 2, bounds.min.z + sizeZ / 2);
+        //subBounds3 = new Bounds(subCenter3, subSize);
+
+        //// subBounds4
+        //Vector3 subCenter4 = new Vector3(bounds.max.x - sizeX / 2, bounds.max.y - sizeY / 2, bounds.min.z + sizeZ / 2);
+        //subBounds4 = new Bounds(subCenter4, subSize);
+
+        //// subBounds5
+        //Vector3 subCenter5 = new Vector3(bounds.min.x + sizeX / 2, bounds.min.y + sizeY / 2, bounds.max.z - sizeZ / 2);
+        //subBounds5 = new Bounds(subCenter5, subSize);
+
+        //// subBounds6
+        //Vector3 subCenter6 = new Vector3(bounds.max.x - sizeX / 2, bounds.min.y + sizeY / 2, bounds.max.z - sizeZ / 2);
+        //subBounds6 = new Bounds(subCenter6, subSize);
+
+        //// subBounds7
+        //Vector3 subCenter7 = new Vector3(bounds.min.x + sizeX / 2, bounds.max.y - sizeY / 2, bounds.max.z - sizeZ / 2);
+        //subBounds7 = new Bounds(subCenter7, subSize);
+
+        //// subBounds8
+        //Vector3 subCenter8 = new Vector3(bounds.max.x - sizeX / 2, bounds.max.y - sizeY / 2, bounds.max.z - sizeZ / 2);
+        //subBounds8 = new Bounds(subCenter8, subSize);
+
+        float sizeX = (bounds.max.x - bounds.min.x) / xDirCount;
+        float sizeY = (bounds.max.y - bounds.min.y) / yDirCount;
+        float sizeZ = (bounds.max.z - bounds.min.z) / zDirCount;
         Vector3 subSize = new Vector3(sizeX, sizeY, sizeZ);
 
-        // subBounds1
-        Vector3 subCenter1 = new Vector3(bounds.min.x + sizeX / 2, bounds.min.y + sizeY / 2, bounds.min.z + sizeZ / 2);
-        subBounds1 = new Bounds(subCenter1, subSize);
+        Vector3 subCenter;
+        int index = 0;
+            float xStartPoint = bounds.min.x;
+            float yStartPoint = bounds.min.y;
+            float zStartPoint = bounds.min.z;
+            for (int i = 0; i < xDirCount; i++)
+            {
+                for (int j = 0; j < yDirCount; j++)
+                {
+                    for (int k = 0; k < zDirCount; k++)
+                    {
+                        subCenter = new Vector3(xStartPoint + sizeX / 2, yStartPoint + sizeY / 2, zStartPoint + sizeZ / 2);
+                        subBounds[index++] = new Bounds(subCenter, subSize);
+                        zStartPoint += sizeZ;
+                    }
+                    zStartPoint = bounds.min.z;
+                    yStartPoint += sizeY;
+                }
+                zStartPoint = bounds.min.z;
+                yStartPoint = bounds.min.y;
+                xStartPoint += sizeX;
+            }
 
-        // subBounds2
-        Vector3 subCenter2 = new Vector3(bounds.max.x - sizeX / 2, bounds.min.y + sizeY / 2, bounds.min.z + sizeZ / 2);
-        subBounds2 = new Bounds(subCenter2, subSize);
-
-        // subBounds3
-        Vector3 subCenter3 = new Vector3(bounds.min.x + sizeX / 2, bounds.max.y - sizeY / 2, bounds.min.z + sizeZ / 2);
-        subBounds3 = new Bounds(subCenter3, subSize);
-
-        // subBounds4
-        Vector3 subCenter4 = new Vector3(bounds.max.x - sizeX / 2, bounds.max.y - sizeY / 2, bounds.min.z + sizeZ / 2);
-        subBounds4 = new Bounds(subCenter4, subSize);
-
-        // subBounds5
-        Vector3 subCenter5 = new Vector3(bounds.min.x + sizeX / 2, bounds.min.y + sizeY / 2, bounds.max.z - sizeZ / 2);
-        subBounds5 = new Bounds(subCenter5, subSize);
-
-        // subBounds6
-        Vector3 subCenter6 = new Vector3(bounds.max.x - sizeX / 2, bounds.min.y + sizeY / 2, bounds.max.z - sizeZ / 2);
-        subBounds6 = new Bounds(subCenter6, subSize);
-
-        // subBounds7
-        Vector3 subCenter7 = new Vector3(bounds.min.x + sizeX / 2, bounds.max.y - sizeY / 2, bounds.max.z - sizeZ / 2);
-        subBounds7 = new Bounds(subCenter7, subSize);
-
-        // subBounds8
-        Vector3 subCenter8 = new Vector3(bounds.max.x - sizeX / 2, bounds.max.y - sizeY / 2, bounds.max.z - sizeZ / 2);
-        subBounds8 = new Bounds(subCenter8, subSize);
     }
 
     public void SplitMesh()
     {
-        for (int i = 0; i < mesh.vertices.Length; i++)
-        {
-            if( subBounds1.Contains(mesh.vertices[i]) )
-            {
-
-            }
-        }
+        
     }
 
     /// <summary>
