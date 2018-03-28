@@ -12,24 +12,23 @@ public class Controller : MonoBehaviour {
     public MeshHolder meshHolder;
     public UnityEngine.Mesh mesh;
 
-    //public Bounds subBounds1;
-    //public Bounds subBounds2;
-    //public Bounds subBounds3;
-    //public Bounds subBounds4;
-    //public Bounds subBounds5;
-    //public Bounds subBounds6;
-    //public Bounds subBounds7;
-    //public Bounds subBounds8;
-
     public Bounds[] subBounds;
 
-    public int xDirCount = 2;
-    public int yDirCount = 2;
-    public int zDirCount = 2;
+    public int xAxisSplitter;
+    public int yAxisSplitter;
+    public int zAxisSplitter;
+
+    private int xDirCount;
+    private int yDirCount;
+    private int zDirCount;
 
     // Use this for initialization
     void Start ()
     {
+        xDirCount = xAxisSplitter;
+        yDirCount = yAxisSplitter;
+        zDirCount = zAxisSplitter;
+
         meshHolder = new MeshHolder();
         mesh = new UnityEngine.Mesh();
         subBounds = new Bounds[xDirCount * yDirCount * zDirCount];
@@ -55,19 +54,14 @@ public class Controller : MonoBehaviour {
     void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(bounds.center, bounds.size);
-        //Gizmos.DrawCube(subBounds1.center, subBounds1.size);
-        //Gizmos.DrawCube(subBounds2.center, subBounds2.size);
-        //Gizmos.DrawCube(subBounds3.center, subBounds3.size);
-        //Gizmos.DrawCube(subBounds4.center, subBounds4.size);
-        //Gizmos.DrawCube(subBounds5.center, subBounds5.size);
-        //Gizmos.DrawCube(subBounds6.center, subBounds6.size);
-        //Gizmos.DrawCube(subBounds7.center, subBounds7.size);
-        //Gizmos.DrawCube(subBounds8.center, subBounds8.size);
-        for (int i = 0; i < subBounds.Length; i++)
+        if (subBounds != null)
         {
-            Gizmos.DrawCube(subBounds[i].center, subBounds[i].size);
+            for (int i = 0; i < subBounds.Length; i++)
+            {
+                Gizmos.DrawCube(subBounds[i].center, subBounds[i].size);
+            }
+            //Gizmos.DrawCube(subBounds[0].center, subBounds[0].size);
         }
-        //Gizmos.DrawCube(subBounds[1].center, subBounds[1].size);
     }
 
     public void addToList()
