@@ -12,7 +12,8 @@ public class Controller : MonoBehaviour {
     public MeshHolder meshHolder;
     public UnityEngine.Mesh mesh;
 
-    public Bounds[] subBounds;
+    //public Bounds[] subBounds;
+    public BoundHolder[] subBounds;
 
     public int xAxisSplitter;
     public int yAxisSplitter;
@@ -23,44 +24,66 @@ public class Controller : MonoBehaviour {
     private int zDirCount;
 
     // Use this for initialization
-    void Start ()
+    void Start()
     {
         xDirCount = xAxisSplitter;
         yDirCount = yAxisSplitter;
         zDirCount = zAxisSplitter;
 
+        addToList();
+        foreach (GameObject g in list)
+        {
+            g.GetComponent<Renderer>().enabled = false;
+        }
+        bounds = DrawBoundingBox(list);
+
         meshHolder = new MeshHolder();
         mesh = new UnityEngine.Mesh();
-        subBounds = new Bounds[xDirCount * yDirCount * zDirCount];
-        Button button = btn.GetComponent<Button>();
-        btn.onClick.AddListener(TaskOnClick);
+        subBounds = new BoundHolder[xDirCount * yDirCount * zDirCount];
+        //Button button = btn.GetComponent<Button>();
+        //btn.onClick.AddListener(TaskOnClick);
     }
-	
-	// Update is called once per frame
-	void TaskOnClick ()
-    {
-        Debug.Log("You have clicked the button!");
 
-        addToList();
-        //mergeIntoParent();
-        bounds = DrawBoundingBox(list);
-        CombineMeshes();
-        DrawNewMesh();
-        //DestroyObjInList();
+    private void Update()
+    {
+        xDirCount = xAxisSplitter;
+        yDirCount = yAxisSplitter;
+        zDirCount = zAxisSplitter;
+        subBounds = new BoundHolder[xDirCount * yDirCount * zDirCount];
         SplitBounds();
-        //SplitMesh();
+        subBounds[3].SetStatus(true);
+        DisplayMeshesOnActiveBounds();
     }
+
+    //// Update is called once per frame
+    //void TaskOnClick()
+    //{
+    //    Debug.Log("You have clicked the button!");
+    //    subBounds = new BoundHolder[xDirCount * yDirCount * zDirCount];
+    //    addToList();
+    //    //mergeIntoParent();
+    //    foreach (GameObject g in list)
+    //    {
+    //        g.GetComponent<Renderer>().enabled = false;
+    //    }
+    //    bounds = DrawBoundingBox(list);
+    //    //CombineMeshes();
+    //    //DrawNewMesh();
+    //    //DestroyObjInList();
+    //    //SplitBounds();
+    //    //DisplayMeshesOnActiveBounds();
+    //}
 
     void OnDrawGizmos()
     {
         Gizmos.DrawWireCube(bounds.center, bounds.size);
         if (subBounds != null)
         {
-            for (int i = 0; i < subBounds.Length; i++)
-            {
-                Gizmos.DrawCube(subBounds[i].center, subBounds[i].size);
-            }
-            //Gizmos.DrawCube(subBounds[0].center, subBounds[0].size);
+            //for (int i = 0; i < subBounds.Length; i++)
+            //{
+            //    Gizmos.DrawCube(subBounds[i].GetBounds().center, subBounds[i].GetBounds().size);
+            //}
+            Gizmos.DrawCube(subBounds[3].GetBounds().center, subBounds[3].GetBounds().size);
         }
     }
 
@@ -182,44 +205,6 @@ public class Controller : MonoBehaviour {
     /// </summary>
     public void SplitBounds()
     {
-        //float sizeX = (bounds.max.x - bounds.min.x) / 2;
-        //float sizeY = (bounds.max.y - bounds.min.y) / 2;
-        //float sizeZ = (bounds.max.z - bounds.min.z) / 2;
-
-        //Vector3 subSize = new Vector3(sizeX, sizeY, sizeZ);
-
-        //// subBounds1
-        //Vector3 subCenter1 = new Vector3(bounds.min.x + sizeX / 2, bounds.min.y + sizeY / 2, bounds.min.z + sizeZ / 2);
-        //subBounds1 = new Bounds(subCenter1, subSize);
-
-        //// subBounds2
-        //Vector3 subCenter2 = new Vector3(bounds.max.x - sizeX / 2, bounds.min.y + sizeY / 2, bounds.min.z + sizeZ / 2);
-        //subBounds2 = new Bounds(subCenter2, subSize);
-
-        //// subBounds3
-        //Vector3 subCenter3 = new Vector3(bounds.min.x + sizeX / 2, bounds.max.y - sizeY / 2, bounds.min.z + sizeZ / 2);
-        //subBounds3 = new Bounds(subCenter3, subSize);
-
-        //// subBounds4
-        //Vector3 subCenter4 = new Vector3(bounds.max.x - sizeX / 2, bounds.max.y - sizeY / 2, bounds.min.z + sizeZ / 2);
-        //subBounds4 = new Bounds(subCenter4, subSize);
-
-        //// subBounds5
-        //Vector3 subCenter5 = new Vector3(bounds.min.x + sizeX / 2, bounds.min.y + sizeY / 2, bounds.max.z - sizeZ / 2);
-        //subBounds5 = new Bounds(subCenter5, subSize);
-
-        //// subBounds6
-        //Vector3 subCenter6 = new Vector3(bounds.max.x - sizeX / 2, bounds.min.y + sizeY / 2, bounds.max.z - sizeZ / 2);
-        //subBounds6 = new Bounds(subCenter6, subSize);
-
-        //// subBounds7
-        //Vector3 subCenter7 = new Vector3(bounds.min.x + sizeX / 2, bounds.max.y - sizeY / 2, bounds.max.z - sizeZ / 2);
-        //subBounds7 = new Bounds(subCenter7, subSize);
-
-        //// subBounds8
-        //Vector3 subCenter8 = new Vector3(bounds.max.x - sizeX / 2, bounds.max.y - sizeY / 2, bounds.max.z - sizeZ / 2);
-        //subBounds8 = new Bounds(subCenter8, subSize);
-
         float sizeX = (bounds.max.x - bounds.min.x) / xDirCount;
         float sizeY = (bounds.max.y - bounds.min.y) / yDirCount;
         float sizeZ = (bounds.max.z - bounds.min.z) / zDirCount;
@@ -227,32 +212,47 @@ public class Controller : MonoBehaviour {
 
         Vector3 subCenter;
         int index = 0;
-            float xStartPoint = bounds.min.x;
-            float yStartPoint = bounds.min.y;
-            float zStartPoint = bounds.min.z;
-            for (int i = 0; i < xDirCount; i++)
+        float xStartPoint = bounds.min.x;
+        float yStartPoint = bounds.min.y;
+        float zStartPoint = bounds.min.z;
+        for (int i = 0; i < xDirCount; i++)
+        {
+            for (int j = 0; j < yDirCount; j++)
             {
-                for (int j = 0; j < yDirCount; j++)
+                for (int k = 0; k < zDirCount; k++)
                 {
-                    for (int k = 0; k < zDirCount; k++)
-                    {
-                        subCenter = new Vector3(xStartPoint + sizeX / 2, yStartPoint + sizeY / 2, zStartPoint + sizeZ / 2);
-                        subBounds[index++] = new Bounds(subCenter, subSize);
-                        zStartPoint += sizeZ;
-                    }
-                    zStartPoint = bounds.min.z;
-                    yStartPoint += sizeY;
+                    subCenter = new Vector3(xStartPoint + sizeX / 2, yStartPoint + sizeY / 2, zStartPoint + sizeZ / 2);
+                    subBounds[index++] = new BoundHolder(subCenter, subSize);
+                    zStartPoint += sizeZ;
                 }
                 zStartPoint = bounds.min.z;
-                yStartPoint = bounds.min.y;
-                xStartPoint += sizeX;
+                yStartPoint += sizeY;
             }
-
+            zStartPoint = bounds.min.z;
+            yStartPoint = bounds.min.y;
+            xStartPoint += sizeX;
+        }
     }
 
-    public void SplitMesh()
+    public void DisplayMeshesOnActiveBounds()
     {
-        
+        for (int i = 0; i < subBounds.Length; i++)
+        {
+            if (subBounds[i].GetStatus())
+            {
+                foreach (GameObject g in list)
+                {
+                    if (subBounds[i].CheckIntersects(g.transform.position))
+                    {
+                        g.GetComponent<Renderer>().enabled = true;
+                    }
+                    else
+                    {
+                        g.GetComponent<Renderer>().enabled = false;
+                    }
+                }
+            }
+        }
     }
 
     /// <summary>
