@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class Controller : MonoBehaviour {
-    public Button btn;
     public List<GameObject> list = new List<GameObject>();
 
     public Bounds bounds;
@@ -12,8 +11,8 @@ public class Controller : MonoBehaviour {
     public MeshHolder meshHolder;
     public UnityEngine.Mesh mesh;
 
-    //public Bounds[] subBounds;
     public BoundHolder[] subBounds;
+    public GameObject indicator;
 
     public int xAxisSplitter;
     public int yAxisSplitter;
@@ -40,8 +39,7 @@ public class Controller : MonoBehaviour {
         meshHolder = new MeshHolder();
         mesh = new UnityEngine.Mesh();
         subBounds = new BoundHolder[xDirCount * yDirCount * zDirCount];
-        //Button button = btn.GetComponent<Button>();
-        //btn.onClick.AddListener(TaskOnClick);
+        indicator = GameObject.Find("IndicatorObject");
     }
 
     private void Update()
@@ -51,39 +49,20 @@ public class Controller : MonoBehaviour {
         zDirCount = zAxisSplitter;
         subBounds = new BoundHolder[xDirCount * yDirCount * zDirCount];
         SplitBounds();
-        subBounds[3].SetStatus(true);
+        ActivateSubBoundsByIndicator();
         DisplayMeshesOnActiveBounds();
     }
 
-    //// Update is called once per frame
-    //void TaskOnClick()
-    //{
-    //    Debug.Log("You have clicked the button!");
-    //    subBounds = new BoundHolder[xDirCount * yDirCount * zDirCount];
-    //    addToList();
-    //    //mergeIntoParent();
-    //    foreach (GameObject g in list)
-    //    {
-    //        g.GetComponent<Renderer>().enabled = false;
-    //    }
-    //    bounds = DrawBoundingBox(list);
-    //    //CombineMeshes();
-    //    //DrawNewMesh();
-    //    //DestroyObjInList();
-    //    //SplitBounds();
-    //    //DisplayMeshesOnActiveBounds();
-    //}
-
     void OnDrawGizmos()
     {
-        Gizmos.DrawWireCube(bounds.center, bounds.size);
+        //Gizmos.DrawWireCube(bounds.center, bounds.size);
         if (subBounds != null)
         {
-            //for (int i = 0; i < subBounds.Length; i++)
-            //{
-            //    Gizmos.DrawCube(subBounds[i].GetBounds().center, subBounds[i].GetBounds().size);
-            //}
-            Gizmos.DrawCube(subBounds[3].GetBounds().center, subBounds[3].GetBounds().size);
+            for (int i = 0; i < subBounds.Length; i++)
+            {
+                Gizmos.DrawWireCube(subBounds[i].GetBounds().center, subBounds[i].GetBounds().size);
+            }
+            //Gizmos.DrawCube(subBounds[3].GetBounds().center, subBounds[3].GetBounds().size);
         }
     }
 
@@ -253,6 +232,22 @@ public class Controller : MonoBehaviour {
                 }
             }
         }
+    }
+
+    public void ActivateSubBoundsByIndicator()
+    {
+        for (int i = 0; i < subBounds.Length; i++)
+        {
+            if (subBounds[i].CheckIntersects(indicator.transform.position))
+            {
+                subBounds[i].SetStatus(true);
+            }
+            else
+            {
+                subBounds[i].SetStatus(false);
+            }
+        }
+        
     }
 
     /// <summary>
