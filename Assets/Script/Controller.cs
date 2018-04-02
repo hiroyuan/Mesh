@@ -22,6 +22,8 @@ public class Controller : MonoBehaviour {
     private int yDirCount;
     private int zDirCount;
 
+    private readonly int SPHERE_COUNT = 10000;
+
     // Use this for initialization
     void Start()
     {
@@ -29,11 +31,13 @@ public class Controller : MonoBehaviour {
         yDirCount = yAxisSplitter;
         zDirCount = zAxisSplitter;
 
+        GenerateSphereRamdomPos();
+
         addToList();
-        foreach (GameObject g in list)
-        {
-            g.GetComponent<Renderer>().enabled = false;
-        }
+        //foreach (GameObject g in list)
+        //{
+        //    g.GetComponent<Renderer>().enabled = false;
+        //}
         bounds = DrawBoundingBox(list);
 
         meshHolder = new MeshHolder();
@@ -68,12 +72,16 @@ public class Controller : MonoBehaviour {
 
     public void addToList()
     {
-        for (int i = 0; i < 10; i++)
+        //for (int i = 0; i < 10; i++)
+        //{
+        //    if (i == 0)
+        //        list.Add(GameObject.Find("Cube"));
+        //    else
+        //        list.Add(GameObject.Find("Cube (" + i + ")"));
+        //}
+        for (int i = 0; i < SPHERE_COUNT; i++)
         {
-            if (i == 0)
-                list.Add(GameObject.Find("Cube"));
-            else
-                list.Add(GameObject.Find("Cube (" + i + ")"));
+            list.Add(GameObject.Find("Sphere" + i));
         }
     }
 
@@ -246,8 +254,21 @@ public class Controller : MonoBehaviour {
             {
                 subBounds[i].SetStatus(false);
             }
+        }   
+    }
+
+    public void GenerateSphereRamdomPos()
+    {
+        for (int i = 0; i < SPHERE_COUNT; i++)
+        {
+            float x = Random.Range(-10, 10);
+            float y = Random.Range(-10, 10);
+            float z = Random.Range(-10, 10);
+            Vector3 pos = new Vector3(x, y, z);
+            GameObject sphere = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+            sphere.name = "Sphere" + i;
+            sphere.transform.position = pos;
         }
-        
     }
 
     /// <summary>
